@@ -1,0 +1,8 @@
+@mixin cover-pic ($pic) {
+	background: url('../images/#{$pic}.jpg') no-repeat center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	padding-bottom: 6px;
+}

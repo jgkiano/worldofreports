@@ -1,0 +1,54 @@
+//phones
+@media screen and (max-width: 991px) {
+	#desktop-nav {
+		display: none;
+	}
+	#mobile-nav {
+		background-color: #fff;
+		height: 78px;
+		z-index: 10;
+
+		.close-nav {
+			display: none;
+		}
+
+		.mobile-logo {
+			float: left;
+			width: 50%;
+			img {
+				width: 150px;
+			}
+		}
+		.mobile-sand {
+			float: left;
+			width: 50%;
+			text-align: right;
+			position: relative;
+			top: 50%;
+			transform: translateY(-50%);
+			padding: 0 16px;
+		}
+		.mobile-menu-items {
+			display: none;
+			clear: both;
+			position: relative;
+			z-index: 10;
+			ul {
+				padding: 0;
+				margin: 0;
+				list-style: none;
+				position: relative;
+				width: 100%;
+				background-color: #fff;
+				text-transform: uppercase;
+				font-size: 0.8em;
+				font-weight: bold;
+			}
+			li {
+				padding: 16px;
+				width: 100%;
+				border-bottom: 2px solid #2699f2;
+			}
+		}
+	}
+}

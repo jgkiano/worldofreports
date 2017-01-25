@@ -1,0 +1,9 @@
+.dropdown {
+	width: 100%;
+	max-height: 0;
+	overflow: hidden;
+	background-color: #eee;
+}
+.show-dropdown {
+	max-height: 500px;
+}

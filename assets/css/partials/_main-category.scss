@@ -1,0 +1,73 @@
+.content-header-country {
+	@include cover-pic("country");
+}
+
+.content-header-industry {
+	@include cover-pic("industry");
+}
+
+.content-header-alcoholic {
+	@include cover-pic("alcoholic");
+}
+
+.content-title {
+	@include lato;
+	max-width: 100%;
+	width: 650px;
+	margin: 16px auto;
+	color: #fff;
+	padding: 16px;
+	background-color: rgba(0, 0, 0, 0.5);
+
+
+	h1, h3 {
+		text-transform: uppercase;
+		font-weight: bold;
+		border-left: 6px solid #fff;
+		padding-left: 16px;
+	}
+	h5, em {
+		text-align: left;
+		line-height: 1.5em;
+		text-decoration: none;
+		font-style: normal;
+		@include lato;
+		font-weight: 300;
+	}
+}
+
+.content-body {
+	width: 100%;
+	background-color: #FFF;
+}
+
+.category-1 {
+	background-color: #FFF;
+	padding: 16px;
+	h2 {
+		text-transform: uppercase;
+		font-weight: bold;
+	}
+	ul {
+		list-style: none;
+		padding: 16px 0;
+		margin: 0;
+	}
+	li {
+		text-transform: uppercase;
+		font-size: 1.2em;
+		padding: 16px 0;
+		border-top: 1px solid rgba(0,0,0,0.2);
+		font-weight: bold;
+		a {
+			text-decoration: none;
+			color: #292B2C;
+			&:hover {
+				color: #2699f2;
+			}
+		}
+	}
+}
+.content-body-results {
+	padding-top: 16px;
+}
