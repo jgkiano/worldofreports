@@ -18,11 +18,42 @@ class Register extends Connection {
         if(count($this -> errors) == 0) {
             $key = $this -> _generateKey();
             try {
-                $stmt = $this -> conn -> prepare("INSERT INTO wor_users(user_firstname, user_lastname, user_email, user_register_date) VALUES(:user_firstname, :user_lastname, :user_email, :user_register_date)");
+
+                // i know i could have set up an insert function and passed in the array but i say NO!
+
+                $stmt = $this -> conn -> prepare("INSERT INTO wor_users
+                    (
+                        user_firstname, 
+                        user_lastname, 
+                        user_email, 
+                        user_billing_country_id, 
+                        user_billing_zip, 
+                        user_billing_address, 
+                        user_billing_street, 
+                        user_billing_town, 
+                        user_register_date 
+
+                    ) VALUES 
+                    (
+                        :user_firstname, 
+                        :user_lastname, 
+                        :user_email, 
+                        :user_billing_country_id,
+                        :user_billing_zip,
+                        :user_billing_address,
+                        :user_billing_street,
+                        :user_billing_town,
+                        :user_register_date
+                    )");
                 $stmt -> execute([
                     "user_firstname" => $user["firstname"],
                     "user_lastname" => $user["lastname"],
                     "user_email" => $user["email"],
+                    "user_billing_country_id" => $user["country"],
+                    "user_billing_zip" => $user["zip"],
+                    "user_billing_address" => $user["address"],
+                    "user_billing_street" => $user["street"],
+                    "user_billing_town" => $user["town"],
                     "user_register_date" => date("Y-m-d")
                 ]);
                 if($stmt -> rowCount() == 1) {
@@ -39,6 +70,9 @@ class Register extends Connection {
                     ]);
                     if($stmt -> rowCount() == 1) {
                         echo "Go and confirm email: " . BASE_URL . "confirm.php?k={$key}";
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             } catch (PDOException $e) {
