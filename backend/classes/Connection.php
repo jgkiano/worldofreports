@@ -1,4 +1,6 @@
 <?php
+require_once("ErrorMaster.php");
+
 require_once("Constants.php");
 
 class Connection
