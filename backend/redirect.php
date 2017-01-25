@@ -5,6 +5,8 @@ require_once('classes/OAuth.php');
 
 require_once('classes/PesaPalCheckStatus.php');
 
+require_once('classes/Payments.php');
+
 $pesapalMerchantReference	= null;
 $pesapalTrackingId 		= null;
 $checkStatus 				= new PesaPalCheckStatus();
@@ -36,6 +38,16 @@ if(!$auth -> isLoggedIn()
 		header(BASE_URL_REDIRECT);
         die();
 	}
+
+    //just for testing will implement ipn later
+    
+    if(!empty($responseArray)) {
+        $payment = new Payments();
+        $updateOrder = $payment -> updateOrder($responseArray);
+        if($updateOrder) {
+            echo "db updated";
+        }
+    }
 
     //At this point, you can update your database.
     //In my case i will let the IPN do this for me since it will run
