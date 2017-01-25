@@ -24,8 +24,8 @@ if(isset($_POST["resetpass"])) {
         $errors =  $auth -> getErrors();
         if($isKeyValid && count($errors) == 0) {
             $confirmReset = $auth -> resetPassword($newPassword, $confimPass, $key);
-            var_dump($confirmReset);
             $errors =  $auth -> getErrors();
+            var_dump($errors);
         }
     }
 }
