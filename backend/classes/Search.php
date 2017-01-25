@@ -1,10 +1,7 @@
 <?php
 
-require_once("classes/Connection.php");
 
-require_once("classes/Authentication.php");
-
-require_once("ErrorMaster.php");
+require_once("Authentication.php");
 
 class Search extends Connection
 {
