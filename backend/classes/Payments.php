@@ -1,10 +1,6 @@
 <?php
 
-require_once("Connection.php");
-
 require_once("Authentication.php");
-
-require_once("Constants.php");
 
 class Payments extends Connection
 {
@@ -34,6 +30,28 @@ class Payments extends Connection
             $error -> reportError($e);
         }
 
+    }
+
+    public function updateOrder ($responseArray) {
+        $query = "UPDATE wor_transactions SET status = :status, pesapal_transaction_tracking_id = :pesapal_transaction_tracking_id, payment_method = :payment_method WHERE transaction_reference = :transaction_reference";
+        try {
+            $stmt = $this -> conn -> prepare($query);
+            //i live on the wild side
+            $stmt -> execute([
+                "status" => strtolower($responseArray["status"]),
+                "pesapal_transaction_tracking_id" => $responseArray["pesapal_transaction_tracking_id"],
+                "payment_method" => $responseArray["payment_method"],
+                "transaction_reference" => $responseArray["pesapal_merchant_reference"]
+                ]);
+            if($stmt -> rowCount() == 1) {
+                return true;
+            } else {
+                return false;
+            }
+         } catch (PDOException $e) {
+            $error = new ErrorMaster();
+            $error -> reportError($e);
+        }
     }
 
     public function storeOrder($ref, $user_id, $report_id, $amount) {
