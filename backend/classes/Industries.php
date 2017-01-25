@@ -1,8 +1,6 @@
 <?php
 require_once("Connection.php");
 
-require_once("ErrorMaster.php");
-
 class Industry extends Connection
 {
 	private $conn;
@@ -32,7 +30,7 @@ class Industry extends Connection
 			$error -> reportError($e);
 		}
 	}
-
+	
 }
 
 ?>
