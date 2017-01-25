@@ -4,4 +4,4 @@ include 'classes/Authentication.php';
 
 Authentication::destroySession();
 
-header('Location: index.php');
+header(BASE_URL_REDIRECT);
