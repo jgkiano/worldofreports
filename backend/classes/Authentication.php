@@ -2,8 +2,6 @@
 
 require_once("Connection.php");
 
-require_once("Constants.php");
-
 class Authentication extends Connection
 {
     private $conn;
@@ -59,12 +57,6 @@ class Authentication extends Connection
 
     public function getErrors() {
         return $this -> errors;
-    }
-
-    private function hashPassword($password) {
-        $salt = "$2a$" . PASSWORD_BCRYPT_COST . "$" . PASSWORD_SALT;
-        $newPassword = crypt($password, $salt);
-        return $newPassword;
     }
 
     private function updateLoginDate($userid) {
@@ -309,17 +301,21 @@ class Authentication extends Connection
         $passwordPattern = "/^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/";
         if($newpass != $confirmpass){
             $this -> errors["reset"] = "Passwords do not match";
-        } elseif (!preg_match($passwordPattern, $newpass)) {
+            return false;
+        }
+        if(!preg_match($passwordPattern, $newpass)) {
             $this -> errors["reset"] = "Password not strong enough, Must be Minimum 8 characters at least 1 Alphabet, 1 Number and 1 Special Character";
-        } elseif (count($this -> errors) == 0) {
-            $query = "UPDATE wor_users_login SET user_login_hash = :user_login_hash WHERE password_reset_key = :password_reset_key";
+            return false;
+        }
+        if(!isset($this -> errors["reset"])) {
             try {
+                $query = "UPDATE wor_users_login SET user_login_hash = :user_login_hash WHERE password_reset_key = :password_reset_key";
                 $stmt = $this -> conn -> prepare($query);
                 $stmt -> execute([
                     "user_login_hash" => $this -> hashPassword($newpass),
                     "password_reset_key" => $key
                 ]);
-                if($stmt -> rowCount() == 1) {
+                if($stmt -> rowCount() > 0) {
                     return true;
                 } else {
                     return false;
@@ -328,8 +324,15 @@ class Authentication extends Connection
                 $error = new ErrorMaster();
                 $error -> reportError($e);
             }
-
+        } else {
+            return false;
         }
+    }
+
+    private function hashPassword($password) {
+        $salt = "$2a$" . PASSWORD_BCRYPT_COST . "$" . PASSWORD_SALT;
+        $newPassword = crypt($password, $salt);
+        return $newPassword;
     }
 
     private function _generateKey() {
