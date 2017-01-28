@@ -229,6 +229,55 @@ class Authentication extends Connection
         }
     }
 
+    public function changeEmail($userId, $email) {
+        $emailPattern = "/^[_a-z0-9-]+(\.[_a-z0-9+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+        if (!preg_match($emailPattern, $email)) {
+            $this -> errors["change-email"] = "invalid email format";
+            return false;
+        } elseif ($this -> exists($email)) {
+            $this -> errors["change-email"] = "the email exists";
+            return false;
+        } else {
+            echo "2";
+            $key = $this -> _generateKey();
+            $query = "UPDATE wor_users_login SET
+            user_login_email = :user_login_email,
+            user_login_email_confirm = :user_login_email_confirm,
+            user_confirmation_key = :user_confirmation_key
+            WHERE user_id = :user_id";
+            try {
+                $stmt = $this -> conn -> prepare($query);
+                $stmt -> execute([
+                    "user_login_email" => $email,
+                    "user_login_email_confirm" => 0,
+                    "user_confirmation_key" => $key,
+                    "user_id" => $userId
+                ]);
+                $result = $stmt -> fetch();
+                if($stmt -> rowCount() == 1) {
+                    //update user information table
+                    $query = "UPDATE wor_users SET
+                    user_email = :user_email
+                    WHERE user_id = :user_id";
+                    $stmt = $this -> conn -> prepare($query);
+                    $stmt -> execute([
+                        "user_email" => $email,
+                        "user_id" => $userId
+                    ]);
+                    if($stmt -> rowCount() == 1) {
+                        echo BASE_URL . "confirm.php?k=" . $key;
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            } catch (PDOException $e) {
+                $error = new ErrorMaster();
+                $error -> reportError($e);
+            }
+        }
+    }
+
     public function getUserIp() {
         //////////////////////change this back///////////////////////////////
         //return $_SERVER['REMOTE_ADDR'];

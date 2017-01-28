@@ -94,6 +94,25 @@ class Payments extends Connection
 
     }
 
+    public function ownsThis($reportId, $userId) {
+        $query = "SELECT * FROM wor_transactions WHERE transaction_report_id = :transaction_report_id AND transaction_user_id = :transaction_user_id";
+        try {
+            $stmt = $this -> conn -> prepare($query);
+            $stmt -> execute([
+                "transaction_report_id" => $reportId,
+                "transaction_user_id" => $userId
+            ]);
+            if($stmt -> rowCount() == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            $error = new ErrorMaster();
+            $error -> reportError($e);
+        }
+    }
+
 }
 
 

@@ -106,6 +106,42 @@ class Reports extends Connection
 	public function getTotalRecords() {
 		return ceil($this -> totalRecords  / $this -> limit);
 	}
+
+	public function getUserTransactionReports($userId, $page) {
+		$start_from = ($page-1) * 10;
+
+		$query = "SELECT * FROM wor_transactions WHERE transaction_user_id = :transaction_user_id ORDER BY transaction_date DESC LIMIT :start_from, :limit";
+
+		try {
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute([
+				"transaction_user_id" => $userId,
+				"start_from" => $start_from,
+				"limit" => 10
+			]);
+			return $stmt->fetchAll();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+	public function getAllUserTransactionReports($userId) {
+		$query = "SELECT * FROM wor_transactions WHERE transaction_user_id = :transaction_user_id";
+
+		try {
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute([
+				"transaction_user_id" => $userId,
+			]);
+			return $stmt->rowCount();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+	
 }
 
 ?>
