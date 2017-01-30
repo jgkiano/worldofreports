@@ -26,9 +26,9 @@
 
 <h1>Welcome, <?php echo $user["user_firstname"] . " " . $user["user_lastname"]; ?></h1>
 
-<a href="edit.php">Edit your information</a>
+<a href="info.php">Edit your information</a>
 <a href="emailchange.php">Change email address</a>
-<a href="edit.php">Change password</a>
+<a href="pchange.php">Change password</a>
 <?php if($totalTransactionReports > 0): ?>
 <table class="table container">
     <thead>

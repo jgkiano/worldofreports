@@ -4,7 +4,7 @@
 if(isset($_POST["email"])) {
     $email = strtolower($_POST["email"]);
     if($auth -> changeEmail($auth -> get("user_id"), $email)) {
-
+        
     } else {
         $errors = $auth -> getErrors();
         if(isset($errors["change-email"])) {
