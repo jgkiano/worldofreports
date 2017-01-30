@@ -3,6 +3,8 @@ require_once("classes/Reports.php");
 
 require_once("classes/Search.php");
 
+require_once("classes/Payments.php");
+
 //here we only need report id
 
 if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
@@ -19,8 +21,17 @@ if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
 
     $report = null;
 }
+
+
 ?>
 <?php require_once("header.php"); ?>
+
+<?php
+if($auth -> isLoggedIn()) {
+    $payment = new Payments();
+    $ownsThis = $payment -> ownsThis($reportInfo["report_id"], $auth -> get("user_id"));
+}
+?>
 
 <?php if(isset($reportInfo)): ?>
     <?php $auth -> set("report_id", $reportInfo["report_id"]);?>
@@ -37,10 +48,14 @@ if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
 	</li>
 
     <?php if($auth -> isLoggedIn()): ?>
-        <form action="checkout.php" method="post">
-            <input type="hidden" name="r_id" value="<?php echo $reportInfo["report_id"];?>">
-            <input type="submit" value="Buy Report" class="btn btn-default" />
-        </form>
+        <?php if($ownsThis): ?>
+            <a href="#" class="btn btn-default">Download</a>
+        <?php else: ?>
+            <form action="checkout.php" method="post">
+                <input type="hidden" name="r_id" value="<?php echo $reportInfo["report_id"];?>">
+                <input type="submit" value="Buy Report" class="btn btn-default" />
+            </form>
+        <?php endif; ?>
     <?php else: ?>
         <a href="register.php" class="btn btn-default">Buy Report</a>
     <?php endif; ?>
@@ -49,11 +64,11 @@ if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
     <p>No results found</p>
 <?php endif; ?>
 
-<?php 
+<?php
 if(isset($reportInfo) && count($reportInfo) > 0) {
     $reccos = $search -> getSpecificReccomendations(
-        $reportInfo["country_id"], 
-        $reportInfo["report_sector_id"], 
+        $reportInfo["country_id"],
+        $reportInfo["report_sector_id"],
         $reportInfo["report_id"]
     );
 }

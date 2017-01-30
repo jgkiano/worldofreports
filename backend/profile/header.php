@@ -1,10 +1,14 @@
 <?php
 
-require_once("classes/Authentication.php");
+require_once("../classes/Authentication.php");
 
 Authentication::startSession();
 
 $auth = new Authentication();
+
+if(!$auth -> isLoggedIn() && count($auth -> get("user_id")) <= 0) {
+    header(BASE_URL_REDIRECT);
+}
 
 ?>
 <!DOCTYPE html>
@@ -18,7 +22,7 @@ $auth = new Authentication();
 </head>
 <body>
     <?php if(isset($_SESSION["user_id"]) && !empty($_SESSION["user_id"])) {?>
-        <a href="profile/">Profile</a>
+        <a href="http://localhost/worldofreports/backend/profile/">Profile</a>
         <a href="logout.php">Logout</a>
         <?php } else { ?>
             <a href="login.php">Login</a>

@@ -229,6 +229,103 @@ class Authentication extends Connection
         }
     }
 
+    public function updatePersonalInfo($info, $userId) {
+        $firstname = ucwords(strtolower($info["firstname"]));
+        $lastname = ucwords(strtolower($info["lastname"]));
+        $country = ucwords(strtolower($info["country"]));
+        $zip = ucwords(strtolower($info["zip"]));
+        $address = ucwords(strtolower($info["address"]));
+        $street = ucwords(strtolower($info["street"]));
+        $town = ucwords(strtolower($info["town"]));
+
+        if(empty($firstname) || empty($lastname) || empty($country) || empty($zip) || empty($address) || empty($street) || empty($town)) {
+            $this -> errors["update-info"] = "please fill in all the required feilds";
+            return false;
+        }
+
+        else {
+            $query = "UPDATE wor_users SET
+            user_firstname = :user_firstname,
+            user_lastname = :user_lastname,
+            user_billing_country_id = :user_billing_country_id,
+            user_billing_zip = :user_billing_zip,
+            user_billing_address = :user_billing_address,
+            user_billing_street = :user_billing_street,
+            user_billing_town = :user_billing_town
+            WHERE user_id = :user_id ";
+            try {
+                $stmt = $this -> conn -> prepare($query);
+                $stmt -> execute([
+                    "user_firstname" => $firstname,
+                    "user_lastname" => $lastname,
+                    "user_billing_country_id" => $country,
+                    "user_billing_zip" => $zip,
+                    "user_billing_address" => $address,
+                    "user_billing_street" => $street,
+                    "user_billing_town" => $town,
+                    "user_id" => $userId
+                ]);
+                if($stmt -> rowCount() > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (PDOException $e) {
+                $error = new ErrorMaster();
+                $error -> reportError($e);
+            }
+        }
+    }
+
+    public function changeEmail($userId, $email) {
+        $emailPattern = "/^[_a-z0-9-]+(\.[_a-z0-9+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+        if (!preg_match($emailPattern, $email)) {
+            $this -> errors["change-email"] = "invalid email format";
+            return false;
+        } elseif ($this -> exists($email)) {
+            $this -> errors["change-email"] = "the email exists";
+            return false;
+        } else {
+            echo "2";
+            $key = $this -> _generateKey();
+            $query = "UPDATE wor_users_login SET
+            user_login_email = :user_login_email,
+            user_login_email_confirm = :user_login_email_confirm,
+            user_confirmation_key = :user_confirmation_key
+            WHERE user_id = :user_id";
+            try {
+                $stmt = $this -> conn -> prepare($query);
+                $stmt -> execute([
+                    "user_login_email" => $email,
+                    "user_login_email_confirm" => 0,
+                    "user_confirmation_key" => $key,
+                    "user_id" => $userId
+                ]);
+                $result = $stmt -> fetch();
+                if($stmt -> rowCount() == 1) {
+                    //update user information table
+                    $query = "UPDATE wor_users SET
+                    user_email = :user_email
+                    WHERE user_id = :user_id";
+                    $stmt = $this -> conn -> prepare($query);
+                    $stmt -> execute([
+                        "user_email" => $email,
+                        "user_id" => $userId
+                    ]);
+                    if($stmt -> rowCount() == 1) {
+                        echo BASE_URL . "confirm.php?k=" . $key;
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            } catch (PDOException $e) {
+                $error = new ErrorMaster();
+                $error -> reportError($e);
+            }
+        }
+    }
+
     public function getUserIp() {
         //////////////////////change this back///////////////////////////////
         //return $_SERVER['REMOTE_ADDR'];
@@ -326,6 +423,77 @@ class Authentication extends Connection
             }
         } else {
             return false;
+        }
+    }
+
+    public function changePassword($oldpass, $newpass, $newpassconfirm, $userId) {
+
+        $passwordPattern = "/^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/";
+
+        if(empty($oldpass) || empty($newpass) || empty($newpassconfirm)) {
+            $this -> errors["changepassword"] = "please fill out all required feilds";
+            return false;
+        }
+
+        if($newpass != $newpassconfirm) {
+            $this -> errors["changepassword"] = "passwords do not match";
+            return false;
+        }
+
+        if(!preg_match($passwordPattern, $newpass)) {
+            $this -> errors["changepassword"] = "password is not strong enough";
+            return false;
+        }
+
+        if(!$this -> passwordMatchCheck($userId, $this -> hashPassword($oldpass))) {
+            $this -> errors["changepassword"] = "incorrect password";
+            return false;
+        } else {
+            $query = "UPDATE wor_users_login SET user_login_hash = :user_login_hash WHERE user_id = :user_id";
+            try {
+                $stmt = $this -> conn -> prepare($query);
+                $stmt -> execute([
+                    "user_login_hash" => $this -> hashPassword($newpass),
+                    "user_id" => $userId
+                ]);
+                if($stmt -> rowCount() > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (PDOException $e) {
+                $error = new ErrorMaster();
+                $error -> reportError($e);
+            }
+        }
+
+
+
+
+
+
+    }
+
+    private function passwordMatchCheck($userId, $password) {
+        $query = "SELECT user_login_hash FROM wor_users_login WHERE user_id = :user_id";
+        try {
+            $stmt = $this -> conn -> prepare($query);
+            $stmt -> execute([ "user_id" => $userId]);
+            if($stmt -> rowCount() > 0) {
+                $result = $stmt -> fetch();
+                if($result["user_login_hash"] == $password) {
+                    return true;
+                } else {
+                    echo $result["user_login_hash"] . "<br>";
+                    echo $password . "<br>";
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            $error = new ErrorMaster();
+            $error -> reportError($e);
         }
     }
 
