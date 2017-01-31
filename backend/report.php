@@ -50,6 +50,7 @@ if($auth -> isLoggedIn()) {
     <?php if($auth -> isLoggedIn()): ?>
         <?php if($ownsThis): ?>
             <a href="#" class="btn btn-default">Download</a>
+            <h6>You have purchased this item</h6>
         <?php else: ?>
             <form action="checkout.php" method="post">
                 <input type="hidden" name="r_id" value="<?php echo $reportInfo["report_id"];?>">

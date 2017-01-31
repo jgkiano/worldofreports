@@ -8,6 +8,10 @@
 	}
 }
 
+.content-body-results {
+	background-color: #f0f0f0;
+}
+
 .results-container {
 	padding: 16px;
 	width: 100%;
@@ -24,8 +28,19 @@
 	}
 }
 .result-item {
-	padding: 32px 0;
+	padding: 32px;
 	border-bottom: 1px solid #299AF0;
+}
+
+.result-item:last-child {
+   border-bottom: none;
+}
+
+span {
+		padding: 16px 0;
+		text-transform: uppercase;
+		font-weight: bold;
+		font-size: 0.9em;
 }
 
 .result-button {
@@ -85,5 +100,16 @@
 		background-color: #2E7D32;
 		color: #fff;
 		border: 2px solid #2E7D32;
+	}
+}
+
+.sort-box {
+	padding: 48px 16px;
+
+	.btn-primary {
+		border-radius: 0;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.8em
 	}
 }

@@ -1,3 +1,20 @@
+<?php
+
+require_once("classes/Authentication.php");
+
+require_once("classes/Industries.php");
+
+Authentication::startSession();
+
+$auth = new Authentication();
+
+$industry = new Industry();
+
+$industriesArray =  $industry -> getAllIndustries();
+
+$industry = null;
+
+?>
 <!DOCTYPE html>
 <html>
 <head>

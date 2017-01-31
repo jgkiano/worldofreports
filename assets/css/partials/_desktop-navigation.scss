@@ -14,17 +14,31 @@
 			top: 50%;
 			transform: translateY(-50%);
 			text-transform: uppercase;
-			font-size: 0.8em;
+			font-size: 1em;
 			font-weight: bold;
 			color: #fff;
     	}
+    	.btn-primary {
+    		position: relative;
+    		top: -8px;
+    		background-color: transparent;
+    		border: 3px solid #f0f0f0;
+    	}
     	li {
+    		a {
+    			color: #fff !important;
+
+    			&:hover {
+    				text-decoration: none !important;
+    			}
+    		}
         	float: left;
         	margin-left: 12px;
         	&:hover {
         		cursor: pointer; cursor: hand;
         	}
     	}
+
 	}
 
 }
