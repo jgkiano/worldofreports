@@ -141,7 +141,57 @@ class Reports extends Connection
 		}
 	}
 
-	
+	public function getSectorFeatured($sector_id = null) {
+		if($sector_id == null) {
+			$query = "SELECT * FROM wor_reports ORDER BY report_uploaded_date DESC";
+		} else {
+			$query = "SELECT * FROM wor_reports WHERE report_sector_id = :report_sector_id ORDER BY report_uploaded_date DESC";
+		}
+
+		try {
+			if($sector_id == null) {
+				$stmt = $this-> conn ->query($query);
+			} else {
+				$stmt = $this -> conn ->prepare($query);
+				$stmt->execute(["report_sector_id" => $sector_id]);
+			}
+			return $stmt->fetch();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+
+	}
+
+	public function getIndustryInfoFromSectorId($sectorId) {
+		$query = "SELECT industry_id FROM wor_sectors WHERE sector_id = :sector_id";
+		try {
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute(["sector_id" => $sectorId]);
+			$industry_id = $stmt -> fetch()["industry_id"];
+			$query = "SELECT * FROM wor_industries WHERE industry_id = :industry_id";
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute(["industry_id" => $industry_id]);
+			return $stmt -> fetch();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+	public function getSectorInfo($sectorId) {
+		$query = "SELECT * FROM wor_sectors WHERE sector_id = :sector_id";
+		try {
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute(["sector_id" => $sectorId]);
+			return $stmt -> fetch();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+
 }
 
 ?>

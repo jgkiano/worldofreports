@@ -35,15 +35,55 @@ class Search extends Connection
 		}
     }
 
-	public function getGeneralReccomendations($sectorId) {
-		$query = "SELECT * FROM wor_reports WHERE report_sector_id = :report_sector_id AND country_id = :country_id ORDER BY RAND() LIMIT 5";
+	private function getRandomReports($limit = 5) {
+		$query = "SELECT * FROM wor_reports ORDER BY RAND() LIMIT :limit";
 		try {
 			$stmt = $this -> conn -> prepare($query);
-			$stmt->execute([
-							'report_sector_id' => $sectorId,
-							'country_id' => $this -> auth -> getUserCountryId()
-						]);
+			$stmt->execute(['limit' => $limit]);
 			return $stmt->fetchAll();
+		} catch (PDOException $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+	public function getGeneralReccomendations($sectorId = null, $limit = 5) {
+		if($sectorId == null) {
+			$query = "SELECT * FROM wor_reports WHERE country_id = :country_id ORDER BY RAND() LIMIT :limit";
+		} else {
+			$query = "SELECT * FROM wor_reports WHERE report_sector_id = :report_sector_id AND country_id = :country_id ORDER BY RAND() LIMIT :limit";
+		}
+		try {
+			$stmt = $this -> conn -> prepare($query);
+			if($sectorId == null) {
+				$stmt->execute([
+					'country_id' => $this -> auth -> getUserCountryId(),
+					'limit' => $limit
+				]);
+				$reports = $stmt -> fetchAll();
+				if(count($reports) < 5) {
+					return array_merge($reports, $this -> getRandomReports($limit - count($reports)));
+				} else {
+					return $reports;
+				}
+			}else {
+				$stmt->execute([
+					'report_sector_id' => $sectorId,
+					'country_id' => $this -> auth -> getUserCountryId(),
+					'limit' => $limit
+				]);
+				$reports = $stmt -> fetchAll();
+				if(count($reports) < 5) {
+					$reports = $reports + $this -> getGeneralReccomendations(null, $limit - count($reports));
+					if(count($reports) < 5 ) {
+						return array_merge($reports, $this -> getRandomReports($limit - count($reports)));
+					} else {
+						return $reports;
+					}
+				} else {
+					return $reports;
+				}
+			}
 		} catch (PDOException $e) {
 			$error = new ErrorMaster();
 			$error -> reportError($e);

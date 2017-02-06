@@ -9,11 +9,10 @@
 @import "partials/dropdown.scss";
 @import "partials/main-category.scss";
 @import "partials/results.scss";
+@import "partials/pagination.scss";
+@import "partials/filterform.scss";
+@import "partials/suggestions.scss";
 
-
-
-
-
-
-
-
+.report-info-container {
+    padding: 38px;
+}
