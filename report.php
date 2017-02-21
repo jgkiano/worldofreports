@@ -5,6 +5,8 @@ require_once("classes/Search.php");
 
 require_once("classes/Payments.php");
 
+require_once("classes/Country.php");
+
 //here we only need report id
 
 if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
@@ -20,6 +22,9 @@ if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
     $reportInfo =  $report -> getReport($reportId);
 
 	$sector = $reportInfo["report_sector_id"];
+
+    $country = new Country();
+
 
 }
 
@@ -45,68 +50,32 @@ if (isset($_GET["r_id"]) && is_numeric($_GET["r_id"])) {
 <div class="content-body container-fluid">
 	<div class="row">
 		<div class="col-lg-2">
-
+            <div class="socials">
+                <h6>Share this report</h6>
+                <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                <a href="#"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>
+            </div>
 		</div>
 		<div class="col-lg-8 report-info-container">
-			<h5><?php echo $reportInfo["country_id"];?></h5>
-			<?php echo $reportInfo["report_published_date"];?>
-			<?php echo $reportInfo["report_price"];?>
-			<?php echo $reportInfo["report_description"];?>
+            <div class="report-details">
+                <h5><?php echo $country -> getCountryName($reportInfo["country_id"]);?></h5>
+    			<h6><?php echo date("M jS, Y", strtotime($reportInfo["report_published_date"])); ?></h6>
+    			<h4 class="report-price">KES: <?php echo number_format($reportInfo["report_price"]); ?></h4>
+            </div>
+            <form class="" action="precheckout.php" method="post">
+                <input type="hidden" name="report_id" value="<?php echo $reportInfo["report_id"]; ?>">
+                <input type="submit" name="reportcheckout" class="btn btn-primary result-button buy-button" value="Buy Report">
+            </form>
+            <div class="report-about">
+                <h2>About this report</h2>
+                <span style="display:block;">By: <?php echo $reportInfo["report_author"];?></span>
+    			<?php echo $reportInfo["report_description"];?>
+            </div>
 		</div>
 		<div class="col-lg-2 suggestions-side">
 			<?php require_once("right-suggestions.php") ?>
 		</div>
 	</div>
-	<?php if(isset($reportInfo)): ?>
-	    <?php $auth -> set("report_id", $reportInfo["report_id"]);?>
-	    <li>Title: <?php echo $reportInfo["report_title"];?>
-			<ul>
-				<li>Country: <?php echo $reportInfo["country_id"];?></li>
-				<li><?php echo $reportInfo["report_author"];?></li>
-				<li>Published On:<?php echo $reportInfo["report_published_date"];?></li>
-				<li>Uploaded On:<?php echo $reportInfo["report_uploaded_date"];?></li>
-				<li>Buy: <?php echo $reportInfo["report_price"];?></li>
-				<li>Overview: <?php echo $reportInfo["report_overview"];?></li>
-	            <li>Description: <?php echo $reportInfo["report_description"];?></li>
-			</ul>
-		</li>
-
-	    <?php if($auth -> isLoggedIn()): ?>
-	        <?php if($ownsThis): ?>
-	            <a href="#" class="btn btn-default">Download</a>
-	            <h6>You have purchased this item</h6>
-	        <?php else: ?>
-	            <form action="checkout.php" method="post">
-	                <input type="hidden" name="r_id" value="<?php echo $reportInfo["report_id"];?>">
-	                <input type="submit" value="Buy Report" class="btn btn-default" />
-	            </form>
-	        <?php endif; ?>
-	    <?php else: ?>
-	        <a href="register.php" class="btn btn-default">Buy Report</a>
-	    <?php endif; ?>
-
-	<?php else: ?>
-	    <p>No results found</p>
-	<?php endif; ?>
-
-	<?php
-	if(isset($reportInfo) && count($reportInfo) > 0) {
-	    $reccos = $search -> getSpecificReccomendations(
-	        $reportInfo["country_id"],
-	        $reportInfo["report_sector_id"],
-	        $reportInfo["report_id"]
-	    );
-	}
-	?>
-
-	<?php
-	if(count($reccos) > 0): ?>
-	    <p>These might interest you: </p>
-	    <ul>
-	        <?php foreach ($reccos as $recco): ?>
-	        <a href="report.php?r_id=<?php echo $recco['report_id']; ?>"><li><?php echo $recco["report_title"]; ?></li></a>
-	        <?php endforeach; ?>
-	    </ul>
-	<?php endif; ?>
 </div>
 <?php require_once "includes/footer.php"; ?>

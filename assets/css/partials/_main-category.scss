@@ -4,6 +4,7 @@
 
 .content-header-industry {
 	@include cover-pic("industry");
+	padding: 0;
 }
 
 .content-header-alcoholic {

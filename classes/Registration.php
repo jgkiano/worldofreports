@@ -2,6 +2,10 @@
 
 require_once("Connection.php");
 
+require_once("Country.php");
+
+require_once("MailMan.php");
+
 class Register extends Connection {
 
     private $conn;
@@ -18,30 +22,32 @@ class Register extends Connection {
         if(count($this -> errors) == 0) {
             $key = $this -> _generateKey();
             try {
+                $country = new Country();
+                $countryId =  $country -> getCountryId($user["country"]);
 
                 // i know i could have set up an insert function and passed in the array but i say NO!
 
                 $stmt = $this -> conn -> prepare("INSERT INTO wor_users
                     (
-                        user_firstname, 
-                        user_lastname, 
-                        user_email, 
-                        user_billing_country_id, 
-                        user_billing_zip, 
-                        user_billing_address, 
-                        user_billing_street, 
-                        user_billing_town, 
-                        user_register_date 
+                        user_firstname,
+                        user_lastname,
+                        user_email,
+                        user_billing_country_id,
+                        user_billing_zip,
+                        user_billing_address,
+                        user_phone,
+                        user_billing_town,
+                        user_register_date
 
-                    ) VALUES 
+                    ) VALUES
                     (
-                        :user_firstname, 
-                        :user_lastname, 
-                        :user_email, 
+                        :user_firstname,
+                        :user_lastname,
+                        :user_email,
                         :user_billing_country_id,
                         :user_billing_zip,
                         :user_billing_address,
-                        :user_billing_street,
+                        :user_phone,
                         :user_billing_town,
                         :user_register_date
                     )");
@@ -49,10 +55,10 @@ class Register extends Connection {
                     "user_firstname" => $user["firstname"],
                     "user_lastname" => $user["lastname"],
                     "user_email" => $user["email"],
-                    "user_billing_country_id" => $user["country"],
+                    "user_billing_country_id" => $countryId["country_id"],
                     "user_billing_zip" => $user["zip"],
                     "user_billing_address" => $user["address"],
-                    "user_billing_street" => $user["street"],
+                    "user_phone" => $user["phone"],
                     "user_billing_town" => $user["town"],
                     "user_register_date" => date("Y-m-d")
                 ]);
@@ -69,8 +75,8 @@ class Register extends Connection {
                         "user_id" => $this -> getUserId($user["email"])
                     ]);
                     if($stmt -> rowCount() == 1) {
-                        echo "Go and confirm email: " . BASE_URL . "confirm.php?k={$key}";
-                        return true;
+                        $mailMan = new MailMan();
+                        return $mailMan -> sendConfirmationEmail($user["email"],$key);
                     } else {
                         return false;
                     }
@@ -83,37 +89,55 @@ class Register extends Connection {
     }
 
     private function validateUser($user) {
-
         $emailPattern = "/^[_a-z0-9-]+(\.[_a-z0-9+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
         $passwordPattern = "/^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/";
-
         if(empty($user["email"])) {
-            $this -> errors["email"] = "Please provide an email address";
+            $this -> errors["register"]["email"] = "Please provide an email address";
         } elseif(!preg_match($emailPattern, $user["email"])) {
-            $this -> errors["email"] = "Incorrect email format";
+            $this -> errors["register"]["email"] = "Incorrect email format";
         } elseif ($this -> exists($user["email"])) {
-            $this -> errors["email"] = "User already existst";
+            $this -> errors["register"]["email"] = "User already existst";
         }
         if(empty($user["firstname"])) {
-            $this -> errors["firstname"] = "Firstname Missing";
+            $this -> errors["register"]["firstname"] = "Firstname Missing";
+        }
+        if(empty($user["zip"])) {
+            $this -> errors["register"]["zip"] = "Please provide a valid zip or postal code";
         }
         if(empty($user["lastname"])) {
-            $this -> errors["lastname"] = "Lastname Missing";
+            $this -> errors["register"]["lastname"] = "Lastname Missing";
         }
         if(empty($user["password"])) {
-            $this -> errors["password"] = "Password Missing";
+            $this -> errors["register"]["password"] = "Password Missing";
+        }
+        if(empty($user["address"])) {
+            $this -> errors["register"]["address"] = "Please provide a billing address";
+        }
+        if(empty($user["country"])) {
+            $this -> errors["register"]["country"] = "Please enter your country's name";
+        } elseif(!empty($user["country"])) {
+            $country = new Country();
+            if($country -> countryExists($user["country"]) == false) {
+                $this -> errors["register"]["country"] = "Please provide a valid country";
+            }
+        }
+        if(empty($user["town"])) {
+            $this -> errors["register"]["town"] = "Please provide a valid town";
+        }
+        if(empty($user["phone"]) || !is_numeric($user["phone"])) {
+            $this -> errors["register"]["phone"] = "Please provide a valid phone number";
         }
         if(empty($user["passwordRepeat"])) {
-            $this -> errors["passwordRepeat"] = "Please repeat the password";
+            $this -> errors["register"]["passwordRepeat"] = "Please repeat the password";
         }
         if(!empty($user["password"]) && !empty($user["passwordRepeat"])) {
             if($user["password"] != $user["passwordRepeat"]) {
-                $this -> errors["password"] = "Passwords do not match";
+                $this -> errors["register"]["passwordmatch"] = "Passwords do not match";
             } elseif (!preg_match($passwordPattern, $user["password"])) {
-                $this -> errors["password"] = "Password not strong enough, Must be Minimum 8 characters at least 1 Alphabet, 1 Number and 1 Special Character";
+                $this -> errors["register"]["password"] = "Password not strong enough, Must be Minimum 8 characters at least 1 Alphabet, 1 Number and 1 Special Character";
+
             }
         }
-
     }
 
     public function getErrors() {

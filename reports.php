@@ -152,6 +152,7 @@ if(isset($sector) && is_numeric($sector)) {
 						<div class="result-item">
 							<em>Uploaded On: <?php echo date("M jS, Y", strtotime($report["report_uploaded_date"])); ?></em>
 							<h4 class="report-title"><a href="report.php?r_id=<?php echo $report["report_id"]; ?>"><?php echo $report["report_title"]; ?></a></h4>
+							<span><?php echo $countryObj -> getCountryName($report["country_id"]); ?></span>
 							<p class="report-teaser"><?php echo mb_strimwidth($report["report_overview"], 0, 350, "...");?></p>
 							<span>By: <?php echo $report["report_author"]; ?>, <?php echo date("M jS Y", strtotime($report["report_published_date"])); ?></span>
 							<h4 class="report-price">KES: <?php echo number_format($report["report_price"]); ?></h4>

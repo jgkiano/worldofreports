@@ -1,0 +1,54 @@
+.redirect-container {
+    height: 85vh;
+    position: relative;
+    padding: 32px;
+}
+
+.redirect-message {
+    text-align: center;
+    position: relative;
+    top: 18%;
+
+    img {
+        width: 200px;
+        display: block;
+        margin: 0 auto;
+    }
+    h5 {
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #008F52;
+    }
+    p {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
+.extra-height {
+    height: 85vh;
+}
+
+.mini-submenu:hover{
+  cursor: pointer;
+}
+
+.mini-submenu .icon-bar {
+  border-radius: 1px;
+  display: block;
+  height: 2px;
+  width: 22px;
+  margin-top: 3px;
+}
+
+.mini-submenu .icon-bar {
+  background-color: #000;
+}
+
+#slide-submenu{
+  background: rgba(0, 0, 0, 0.45);
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}

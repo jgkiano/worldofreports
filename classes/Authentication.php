@@ -2,6 +2,8 @@
 
 require_once("Connection.php");
 
+require_once("Country.php");
+
 class Authentication extends Connection
 {
     private $conn;
@@ -15,8 +17,7 @@ class Authentication extends Connection
     }
 
     public function userLogin($user) {
-        $this -> validateUser($user);
-        if(count($this -> errors) == 0) {
+        if($this -> validateUser($user)) {
             $email = $user["email"];
             $password = $this -> hashPassword($user["password"]);
             try {
@@ -28,13 +29,15 @@ class Authentication extends Connection
                 $result = $stmt -> fetchAll();
                 if ($stmt -> rowCount() == 1 ) {
                     if($result[0]["user_login_email_confirm"] == 0) {
-                        echo "please confirm your password to login";
+                        $this -> errors["login"] = "please confirm your password to login";
+                        return false;
                     } elseif ($this -> updateLoginDate($result[0]["user_id"]) ) {
                         $this::set("user_id", $result[0]["user_id"]);
                         header(BASE_URL_REDIRECT);
                     }
                 } else {
-                    echo "wrong username and/or password";
+                    $this -> errors["login"] = "wrong username and/or password";
+                    return false;
                 }
             } catch (PDOException $e) {
     			$error = new ErrorMaster();
@@ -45,14 +48,22 @@ class Authentication extends Connection
 
     private function validateUser($user) {
         $emailPattern = "/^[_a-z0-9-]+(\.[_a-z0-9+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+        if(empty($user["email"]) && empty($user["password"])) {
+            $this -> errors["login"] = "Please provide an email address and password";
+            return false;
+        }
         if(empty($user["email"])) {
-            $this -> errors["email"] = "Please provide and email address";
+            $this -> errors["login"] = "Please provide and email address";
+            return false;
         } elseif (!preg_match($emailPattern, $user["email"])) {
-            $this -> errors["email"] = "Incorrect email format";
+            $this -> errors["login"] = "Incorrect email format";
+            return false;
         }
         if(empty($user["password"])) {
-            $this -> errors["password"] = "Please provide a valid password";
+            $this -> errors["login"] = "Please provide a valid password";
+            return false;
         }
+        return true;
     }
 
     public function getErrors() {
@@ -235,45 +246,57 @@ class Authentication extends Connection
         $country = ucwords(strtolower($info["country"]));
         $zip = ucwords(strtolower($info["zip"]));
         $address = ucwords(strtolower($info["address"]));
-        $street = ucwords(strtolower($info["street"]));
+        $phone = $info["phone"];
         $town = ucwords(strtolower($info["town"]));
 
-        if(empty($firstname) || empty($lastname) || empty($country) || empty($zip) || empty($address) || empty($street) || empty($town)) {
-            $this -> errors["update-info"] = "please fill in all the required feilds";
+        if(empty($firstname) || empty($lastname) || empty($country) || empty($zip) || empty($address) || empty($phone) || empty($town)) {
+            $this -> errors["update-info"]["all"] = "please fill in all the required feilds";
+            return false;
+        }
+        $country = new Country();
+
+        if(!$country -> countryExists($info["country"])) {
+            $this -> errors["update-info"]["country"] = "please provide a valid country";
+            return false;
+        } else {
+            //filthy
+            $country = $country -> getCountryId($info["country"])["country_id"];
+        }
+
+        if(!is_numeric($phone)) {
+            $this -> errors["update-info"]["phone"] = "please provide a phone number";
             return false;
         }
 
-        else {
-            $query = "UPDATE wor_users SET
-            user_firstname = :user_firstname,
-            user_lastname = :user_lastname,
-            user_billing_country_id = :user_billing_country_id,
-            user_billing_zip = :user_billing_zip,
-            user_billing_address = :user_billing_address,
-            user_billing_street = :user_billing_street,
-            user_billing_town = :user_billing_town
-            WHERE user_id = :user_id ";
-            try {
-                $stmt = $this -> conn -> prepare($query);
-                $stmt -> execute([
-                    "user_firstname" => $firstname,
-                    "user_lastname" => $lastname,
-                    "user_billing_country_id" => $country,
-                    "user_billing_zip" => $zip,
-                    "user_billing_address" => $address,
-                    "user_billing_street" => $street,
-                    "user_billing_town" => $town,
-                    "user_id" => $userId
-                ]);
-                if($stmt -> rowCount() > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (PDOException $e) {
-                $error = new ErrorMaster();
-                $error -> reportError($e);
+        $query = "UPDATE wor_users SET
+        user_firstname = :user_firstname,
+        user_lastname = :user_lastname,
+        user_billing_country_id = :user_billing_country_id,
+        user_billing_zip = :user_billing_zip,
+        user_billing_address = :user_billing_address,
+        user_phone = :user_phone,
+        user_billing_town = :user_billing_town
+        WHERE user_id = :user_id ";
+        try {
+            $stmt = $this -> conn -> prepare($query);
+            $stmt -> execute([
+                "user_firstname" => $firstname,
+                "user_lastname" => $lastname,
+                "user_billing_country_id" => $country,
+                "user_billing_zip" => $zip,
+                "user_billing_address" => $address,
+                "user_phone" => $phone,
+                "user_billing_town" => $town,
+                "user_id" => $userId
+            ]);
+            if($stmt -> rowCount() > 0) {
+                return true;
+            } else {
+                return false;
             }
+        } catch (PDOException $e) {
+            $error = new ErrorMaster();
+            $error -> reportError($e);
         }
     }
 

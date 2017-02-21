@@ -110,14 +110,15 @@ class Reports extends Connection
 	public function getUserTransactionReports($userId, $page) {
 		$start_from = ($page-1) * 10;
 
-		$query = "SELECT * FROM wor_transactions WHERE transaction_user_id = :transaction_user_id ORDER BY transaction_date DESC LIMIT :start_from, :limit";
+		$query = "SELECT * FROM wor_transactions WHERE transaction_user_id = :transaction_user_id AND status = :status ORDER BY transaction_date DESC LIMIT :start_from, :limit";
 
 		try {
 			$stmt = $this -> conn ->prepare($query);
 			$stmt->execute([
 				"transaction_user_id" => $userId,
 				"start_from" => $start_from,
-				"limit" => 10
+				"limit" => 10,
+				"status" => "completed"
 			]);
 			return $stmt->fetchAll();
 		} catch (Exception $e) {
@@ -185,6 +186,22 @@ class Reports extends Connection
 			$stmt = $this -> conn ->prepare($query);
 			$stmt->execute(["sector_id" => $sectorId]);
 			return $stmt -> fetch();
+		} catch (Exception $e) {
+			$error = new ErrorMaster();
+			$error -> reportError($e);
+		}
+	}
+
+	public function reportExists($report_id) {
+		$query = "SELECT * FROM wor_reports WHERE report_id = :report_id";
+		try {
+			$stmt = $this -> conn ->prepare($query);
+			$stmt->execute(["report_id" => $report_id]);
+			if($stmt -> rowCount() == 1) {
+				return true;
+			} else {
+				return false;
+			}
 		} catch (Exception $e) {
 			$error = new ErrorMaster();
 			$error -> reportError($e);

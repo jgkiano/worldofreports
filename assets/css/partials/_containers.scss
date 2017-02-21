@@ -1,0 +1,133 @@
+.report-info-container {
+    padding: 38px;
+}
+
+.report-details {
+    border-left: 4px solid lighten(#909090, 20%);
+    padding-left: 32px;
+}
+
+.report-about {
+    padding: 16px 0;
+    h2 {
+        color: #0F81D9;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+}
+
+.socials {
+    padding-top: 38px;
+    text-align: center;
+    h6 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    a {
+        color: #292B2C;
+        font-size: 1.8em;
+        padding: 0 12px;
+
+    }
+}
+
+.center-form-container {
+    width: 100%;
+    height: 85vh;
+    background-color: #F0F0F0;
+    position: relative;
+}
+.register-form-container {
+    position: relative;
+    background-color: #f0f0f0;
+    text-align: center;
+    padding: 32px 0;
+}
+.register-form {
+    text-align: left;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    width: 40%;
+    display: inline-block;
+    background-color: #fff;
+    padding: 32px;
+    .form-control {
+        border-radius: 0;
+    }
+    h5 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
+.form-container {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    background-color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 32px;
+    border-top: 4px solid lighten(#0275D8, 10%);
+    // border-left: 4px solid lighten(#0275D8, 10%);
+    .form-control {
+        border-radius: 0;
+    }
+    h5 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
+.error {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: lighten(#d50000, 20%);
+    font-size: 0.8em;
+}
+
+.login-form-container {
+    @extend .form-container;
+    width: 25%;
+
+    span {
+        display: block;
+        font-size: 0.7em;
+        padding: 6px 0;
+    }
+}
+
+.white-buttons {
+    border-radius: 0;
+    background-color: #fff;
+    color: #292B2C;
+}
+
+.red {
+    color: #d50000 !important;
+}
+.danger {
+    border: 1px solid #d50000;
+}
+
+.confirm-email-container {
+    width: 100%;
+    height: 85vh;
+    background-color: #f0f0f0;
+    position: relative;
+
+    h2 {
+        font-weight: bold;
+        color: #025AA5;
+        text-transform: uppercase;
+    }
+
+    .message {
+        width: 100%;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: center;
+    }
+}

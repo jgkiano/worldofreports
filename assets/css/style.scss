@@ -12,7 +12,44 @@
 @import "partials/pagination.scss";
 @import "partials/filterform.scss";
 @import "partials/suggestions.scss";
+@import "partials/containers.scss";
+@import "partials/checkout.scss";
+@import "partials/redirect_page.scss";
 
-.report-info-container {
-    padding: 38px;
+.profile-container {
+    padding: 32px;
+
+    h4 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
+.profile-right {
+    h6 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
+.btn-download {
+    border-radius: 0;
+    background-color: #388E3C;
+    border: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em;
+    padding: 12px 16px;
+
+    &:hover {
+        background-color: darken(#388E3C, 10%)
+    }
+}
+
+.profile-right {
+    form {
+        width: 100% !important;
+        box-shadow: none;
+        padding: 0;
+    }
 }
